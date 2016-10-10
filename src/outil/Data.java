@@ -25,5 +25,8 @@ public class Data {
 	public void setY(double y) {
 		this.y = y;
 	}
+	public String toString(){
+		return "x:"+x+"\ty:"+y;
+	}
 	
 }

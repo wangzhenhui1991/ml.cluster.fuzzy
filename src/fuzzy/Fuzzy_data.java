@@ -13,19 +13,31 @@ public class Fuzzy_data {
 	private int num_clusters;
 	
 	
-	
+	/**
+	 * 随机生成样本数据，类中心数据
+	 * @param fuzziness 模糊指数
+	 * @param num_clusters 类中心数
+	 * @param number 样本数
+	 * @param x_min 
+	 * @param x_max
+	 * @param y_min
+	 * @param y_max
+	 */
 	public Fuzzy_data(double fuzziness, int num_clusters,int number,double x_min,double x_max,double y_min,double y_max) {
 		this.fuzziness = fuzziness;
 		this.num_clusters = num_clusters;
 		this.data_point=new LinkedList<>();
 		this.cluster_point=new LinkedList<>();
+		//生成样本数据
 		for(int i=0;i<number;i++){
 			Point data=new Point(Fuzzy_function.getRandomNumber(x_min, x_max),Fuzzy_function.getRandomNumber(y_min, y_max));
 			this.data_point.add(data);
 		}
+		//生成类中心
 		for(int i=0;i<num_clusters;i++){
 			Center data=new Center(Fuzzy_function.getRandomNumber(x_min, x_max),Fuzzy_function.getRandomNumber(y_min, y_max));
 			this.cluster_point.add(data);
+			System.out.println(data.toString());
 		}
 		
 	}
@@ -41,7 +53,7 @@ public class Fuzzy_data {
 	public List<Center> getCluster_point() {
 		return cluster_point;
 	}
-	public Center getCluuster_point(int i) {
+	public Center getCluster_point(int i) {
 		return cluster_point.get(i);
 	}
 	public void setCluster_point(List<Center> cluster_point) {

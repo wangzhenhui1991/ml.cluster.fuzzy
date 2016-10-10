@@ -1,16 +1,20 @@
 package fuzzy_param;
 
 public class Fuzzy_parametre {
+	//样本数
 	private static int essaie_number=2000;
-	private static int num_cluster=5;
-	private static double fuzziness=1.25;
+	//类中心数
+	private static int num_cluster=3;
+	//模糊指数
+	private static double fuzziness=1.5;
 	private static double valmax_x=500;
 	private static double valmin_x=0;
 	private static double valmax_y=1000;
 	private static double valmin_y=500;
 	private static double after_dot=3;
-	private static int draw_surface_height=500;
-	private static int draw_surface_width=500;
+	private static int draw_surface_height=700;
+	private static int draw_surface_width=600;
+	//阈值
 	private static double epsilon=0.009;
 	
 	

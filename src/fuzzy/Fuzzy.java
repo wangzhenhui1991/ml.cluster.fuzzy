@@ -9,6 +9,7 @@ import outil.Center;
 import outil.Point;
 
 public class Fuzzy {
+		
 		Fuzzy_data fuzzy_data;
 		private double[][] matrix;
 		
@@ -25,22 +26,37 @@ public class Fuzzy {
 		public void setMatrix(double[][] matrix) {
 			this.matrix = matrix;
 		}
+		
 		public Fuzzy() {
 			fuzzy_data=new Fuzzy_data(Fuzzy_parametre.getFuzziness(),Fuzzy_parametre.getNum_cluster(), Fuzzy_parametre.getEssaie_number(), Fuzzy_parametre.getValmin_x(),Fuzzy_parametre.getValmax_x(),Fuzzy_parametre.getValmin_y(), Fuzzy_parametre.getValmax_y());
 			matrix=new double[Fuzzy_parametre.getEssaie_number()][Fuzzy_parametre.getNum_cluster()];
 		}
+		/**
+		 * 初始化-隶属度矩阵
+		 */
 		public void init()
 		{
 			for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
 				for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
-					matrix[i][j]=euclidien_distance(fuzzy_data.getData_point(i).getX(),fuzzy_data.getData_point(i).getY(),fuzzy_data.getCluuster_point(j).getX() ,fuzzy_data.getCluuster_point(j).getY());
+					matrix[i][j]=euclidien_distance(fuzzy_data.getData_point(i).getX(),fuzzy_data.getData_point(i).getY(),fuzzy_data.getCluster_point(j).getX() ,fuzzy_data.getCluster_point(j).getY());
 				}
 			}
 			
 		}
+		/**
+		 * 计算欧氏距离
+		 * @param x1
+		 * @param y1
+		 * @param x2
+		 * @param y2
+		 * @return
+		 */
 		public double euclidien_distance(double x1,double y1,double x2,double y2){
 			return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 		}
+		/**
+		 * 计算隶属度矩阵
+		 */
 		public void membership_matrix()
 		{
 			for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
@@ -54,42 +70,50 @@ public class Fuzzy {
 				
 			}
 		}
+		/**
+		 * 根据隶属度矩阵，计算新的聚类中心
+		 */
 		public List<Center> new_cendroid()
 		{
 			List<Center> center_point=new LinkedList<>();
 			for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
 				double result=0.0,x=0.0,y=0.0;
-			for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
-				result=result+Math.pow(matrix[i][j],fuzzy_data.getFuzziness());
+				
+				for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
+					double u = Math.pow(matrix[i][j],fuzzy_data.getFuzziness());
+					result=result+u;
+					
+					x=x+u*fuzzy_data.getData_point(i).getX();
+					y=y+u*fuzzy_data.getData_point(i).getY();
 				}
-			for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
-
-				y=y+Math.pow(matrix[i][j],fuzzy_data.getFuzziness())*fuzzy_data.getData_point(i).getY();
-				x=x+Math.pow(matrix[i][j],fuzzy_data.getFuzziness())*fuzzy_data.getData_point(i).getX();
-			
-			
-		}
-			center_point.add(new Center(x/result,y/result));
-			System.out.println(j+"    "+" X="+x+"   "+result+"    "+ x/result+"    Y="+y/result);
+			//calculate the new cluster center
+		    double c_x=x/result;
+		    double c_y=y/result;
+			center_point.add(new Center(c_x,c_y));
+//			System.out.println(j+"\t"+" ∑(U(ij)^m*X(i))="+x+"\t∑(U(ij)^m)"+result+"\tc_x="+ c_x+"\tc_Y="+c_y);
 		}
 			return center_point;
 						
 		}
 		public void cendroid_converge(){
 			boolean cond=true;
+			long startTime=System.currentTimeMillis();
+			int iterations=0;
 			loops:
 			while(cond){
 				init();
+				//计算隶属度矩阵
 				membership_matrix();
-				List<Center> center=new_cendroid();
-				
+				//重新计算类中心
+				List<Center> new_center=new_cendroid();
+				//判断是否满足结束条件
 				for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
-					Double x1=center.get(j).getX();
-					Double y1=center.get(j).getY();
+					Double x1=new_center.get(j).getX();
+					Double y1=new_center.get(j).getY();
 					if(x1.isNaN() || y1.isNaN()){
 						break loops;
 					}
-					if(Math.abs(center.get(j).getX()-fuzzy_data.getCluuster_point(j).getX())<Fuzzy_parametre.getEpsilon() && Math.abs(center.get(j).getY()-fuzzy_data.getCluuster_point(j).getY())<Fuzzy_parametre.getEpsilon()){
+					if(Math.abs(new_center.get(j).getX()-fuzzy_data.getCluster_point(j).getX())<Fuzzy_parametre.getEpsilon() && Math.abs(new_center.get(j).getY()-fuzzy_data.getCluster_point(j).getY())<Fuzzy_parametre.getEpsilon()){
 						cond=false;
 					}
 					else{
@@ -97,12 +121,22 @@ public class Fuzzy {
 					}
 				}
 				
-					fuzzy_data.setCluster_point(center);
+					fuzzy_data.setCluster_point(new_center);
+					iterations++;
 				
 			}
+			long endTime=System.currentTimeMillis();
+			System.out.println("System runing:\t"+(endTime-startTime)+"ms");
+			System.out.println("iterations:\t"+iterations);
+			
 		}
+		/**
+		 * 将每个样本点(根据隶属度 (最大值))划分到所属的类中心(链表)中
+		 * 
+		 */
 		public List<Point>[] cluster()
 		{
+			@SuppressWarnings("unchecked")
 			List<Point>[] cluster=new List[Fuzzy_parametre.getNum_cluster()];
 			for(int i=0;i<Fuzzy_parametre.getNum_cluster();i++){
 				cluster[i]=new LinkedList<>();
@@ -115,7 +149,7 @@ public class Fuzzy {
 						max=j;
 						value=matrix[i][j];
 					}
-					}
+				}
 				cluster[max].add(fuzzy_data.getData_point(i));
 			}
 			return cluster;
