@@ -20,6 +20,7 @@ public class Fuzzy_function {
 	
 	/**
 	 * floor 执行向下舍入，即它总是将数值向下舍入为最接近的整数；
+	 * 精度为小数点后Fuzzy_parametre.getAfter_dot()
 	 */
 	public static double convert_floor(double a){
 		int result=10;
@@ -31,6 +32,7 @@ public class Fuzzy_function {
 	}
 	/**
 	 * ceil 向上舍入，即它总是将数值向上舍入为最接近的整数
+	 * 精度为小数点后Fuzzy_parametre.getAfter_dot()
 	 */
 	public static double convert_ceil(double a){
 		int result=10;
@@ -63,5 +65,14 @@ public class Fuzzy_function {
 		}
 		return result;
 		
+	}
+	
+	public static void MatrixToString(double[][] matrix){
+		for(int i =0;i<matrix.length;i++){
+			for(int j=0;j<matrix[i].length;j++){
+				System.out.print("\t"+matrix[i][j]);
+			}
+			System.out.println();
+		}
 	}
 }

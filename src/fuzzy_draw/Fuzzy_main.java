@@ -1,28 +1,106 @@
 package fuzzy_draw;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
+import java.util.Random;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 import fuzzy.Fuzzy;
 import fuzzy_param.Fuzzy_function;
 import fuzzy_param.Fuzzy_parametre;
 import outil.Point;
 
+
+public class Fuzzy_main extends JFrame {
+
+	private static final long serialVersionUID = -5102376854275421795L;
+	Surface surface;
+	
+    SwingWorker<Void, String> worker = new SwingWorker<Void,String>(){
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			// TODO Auto-generated method stub
+			Random random=new Random();
+			while(isCancelled()){
+				publish(String.format("<html>Random NO.<font color=red>%d</html>", random.nextInt(9999)));
+				Thread.sleep(1000);
+			}
+			return null;
+		}
+		
+		@Override
+			
+		protected void done(){
+		}
+		@Override
+    	protected void process(java.util.List<String> chunks) {
+    		System.out.println(chunks.get(chunks.size()-1));
+    	};
+    };
+	JButton btnStart;
+	JButton btnEnd;
+    public Fuzzy_main() {
+
+        initUI();
+    }
+
+    private void initUI() {
+    	surface=new Surface(worker);
+        add(surface);
+
+        setTitle("Simple Java 2D example");
+        setSize(Fuzzy_parametre.getDraw_surface_width(), Fuzzy_parametre.getDraw_surface_height());
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        worker.execute();
+    }
+
+    public static void main(String[] args) {
+
+        EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                Fuzzy_main ex = new Fuzzy_main();
+                ex.setVisible(true);
+            }
+        });
+    }
+}
+
 class Surface extends JPanel {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 3508956927269378281L;
+	 SwingWorker<Void, String> worker;
+	public Surface(){
+		super(new BorderLayout());
+		
+	}
+	public Surface(SwingWorker<Void, String> worker){
+		super();
+		worker=worker;
+	}
+	   @Override
+	    public void paintComponent(Graphics g) {
 
+	        super.paintComponent(g);
+//	        doDrawing(g);
+	        drawingAnything(g);
+	    }
+	   
 	private void doDrawing(Graphics g) {
+		
     	Graphics2D g2d = (Graphics2D) g;
     	Fuzzy fuzzy=new Fuzzy();
     	fuzzy.cendroid_converge();
@@ -51,48 +129,11 @@ class Surface extends JPanel {
    		}
         
     }
+	private void drawingAnything(Graphics g){
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setColor(new Color(125,125,125));
+		g2d.fill(new Ellipse2D.Double(0,0,Fuzzy_parametre.getDraw_surface_width(),Fuzzy_parametre.getDraw_surface_height()));
+	}
 
-    @Override
-    public void paintComponent(Graphics g) {
-
-        super.paintComponent(g);
-        doDrawing(g);
-    }
-}
-
-public class Fuzzy_main extends JFrame {
-
-
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5102376854275421795L;
-
-	public Fuzzy_main() {
-
-        initUI();
-    }
-
-    private void initUI() {
-
-        add(new Surface());
-
-        setTitle("Simple Java 2D example");
-        setSize(Fuzzy_parametre.getDraw_surface_width(), Fuzzy_parametre.getDraw_surface_height());
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                Fuzzy_main ex = new Fuzzy_main();
-                ex.setVisible(true);
-            }
-        });
-    }
+ 
 }

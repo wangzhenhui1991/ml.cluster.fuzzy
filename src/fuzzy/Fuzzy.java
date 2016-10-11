@@ -12,8 +12,16 @@ public class Fuzzy {
 		
 		Fuzzy_data fuzzy_data;
 		private double[][] matrix;
+		private static int run_count=0;
+		private List<Point>[] cluster=null;
 		
 		
+		public List<Point>[] getCluster() {
+			return cluster;
+		}
+		public void setCluster(List<Point>[] cluster) {
+			this.cluster = cluster;
+		}
 		public Fuzzy_data getFuzzy_data() {
 			return fuzzy_data;
 		}
@@ -60,13 +68,36 @@ public class Fuzzy {
 		public void membership_matrix()
 		{
 			for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
+//				System.out.print(i+":");
 		    	double result=0.0;
 				for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
 					result=result+Math.pow(1/matrix[i][j],1/(fuzzy_data.getFuzziness()-1));
 				}
 				for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
 					matrix[i][j]=Fuzzy_function.floorconvert(Math.pow(1/matrix[i][j],1/(fuzzy_data.getFuzziness()-1))/result);
+//					System.out.print("\t"+matrix[i][j]);
 				}
+//				System.out.println();
+				
+			}
+		}
+		
+		public void membership_matrix_pcm(){
+			for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
+				System.out.print(i+":");
+		    	double result=0.0,d=0.0,eta=0.0;
+				for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
+					double u = Math.pow(matrix[i][j],fuzzy_data.getFuzziness());
+					result=result+u;
+					d=d+u*Math.pow(matrix[i][j],2);
+					eta=d/result;
+				}
+				for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
+					double tmp=Math.pow(eta,1/(fuzzy_data.getFuzziness()-1));
+					matrix[i][j]=Fuzzy_function.floorconvert(tmp/(Math.pow(matrix[i][j],2/(fuzzy_data.getFuzziness()-1))+tmp));
+					System.out.print("\t"+matrix[i][j]);
+				}
+				System.out.println();
 				
 			}
 		}
@@ -77,6 +108,7 @@ public class Fuzzy {
 		{
 			List<Center> center_point=new LinkedList<>();
 			for(int j=0;j<Fuzzy_parametre.getNum_cluster();j++){
+//				System.out.print(j+":\t");
 				double result=0.0,x=0.0,y=0.0;
 				
 				for(int i=0;i<Fuzzy_parametre.getEssaie_number();i++){
@@ -85,7 +117,9 @@ public class Fuzzy {
 					
 					x=x+u*fuzzy_data.getData_point(i).getX();
 					y=y+u*fuzzy_data.getData_point(i).getY();
+//					System.out.print(matrix[i][j]+"\t");
 				}
+//				System.out.println();
 			//calculate the new cluster center
 		    double c_x=x/result;
 		    double c_y=y/result;
@@ -99,6 +133,7 @@ public class Fuzzy {
 			boolean cond=true;
 			long startTime=System.currentTimeMillis();
 			int iterations=0;
+			System.out.println(Thread.currentThread().getName()+"\tis clustering...");
 			loops:
 			while(cond){
 				init();
@@ -126,8 +161,9 @@ public class Fuzzy {
 				
 			}
 			long endTime=System.currentTimeMillis();
-			System.out.println("System runing:\t"+(endTime-startTime)+"ms");
+			System.out.println("\nSystem runing:\t"+(endTime-startTime)+"ms");
 			System.out.println("iterations:\t"+iterations);
+			System.out.println("run count:\t"+(++run_count));
 			
 		}
 		/**
@@ -136,8 +172,8 @@ public class Fuzzy {
 		 */
 		public List<Point>[] cluster()
 		{
-			@SuppressWarnings("unchecked")
-			List<Point>[] cluster=new List[Fuzzy_parametre.getNum_cluster()];
+			if(cluster!=null) return cluster;
+			this.cluster=new List[Fuzzy_parametre.getNum_cluster()];
 			for(int i=0;i<Fuzzy_parametre.getNum_cluster();i++){
 				cluster[i]=new LinkedList<>();
 			}

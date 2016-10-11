@@ -6,7 +6,7 @@ public class Fuzzy_parametre {
 	//类中心数
 	private static int num_cluster=3;
 	//模糊指数
-	private static double fuzziness=1.5;
+	private static double fuzziness=1.25;
 	private static double valmax_x=500;
 	private static double valmin_x=0;
 	private static double valmax_y=1000;
